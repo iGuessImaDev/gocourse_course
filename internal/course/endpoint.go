@@ -48,13 +48,6 @@ type (
 		ID string
 	}
 
-	Response struct {
-		Status int        `json:"status"`
-		Data   any        `json:"data,omitempty"`
-		Err    string     `json:"error,omitempty"`
-		Meta   *meta.Meta `json:"meta,omitempty"`
-	}
-
 	Config struct {
 		LimPageDef string
 	}

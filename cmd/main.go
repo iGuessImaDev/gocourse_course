@@ -33,7 +33,7 @@ func main() {
 	courseRepo := course.NewRepo(l, db)
 	courseSrv := course.NewService(l, courseRepo)
 
-	h := handler.NewUserHTTPServer(ctx, course.MakeEndpoints(courseSrv, config))
+	h := handler.NewCourseHTTPServer(ctx, course.MakeEndpoints(courseSrv, config))
 
 	port := os.Getenv("PORT")
 	address := fmt.Sprintf("127.0.0.1:%s", port)

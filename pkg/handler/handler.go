@@ -14,7 +14,7 @@ import (
 	"github.com/iGuessImaDev/gocourse_course/internal/course"
 )
 
-func NewUserHTTPServer(ctx context.Context, endpoints course.Endpoints) http.Handler {
+func NewCourseHTTPServer(ctx context.Context, endpoints course.Endpoints) http.Handler {
 	r := mux.NewRouter()
 
 	opts := []httptransport.ServerOption{

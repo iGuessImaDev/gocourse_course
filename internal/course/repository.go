@@ -16,7 +16,7 @@ type Repository interface {
 	GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.Course, error)
 	Get(ctx context.Context, id string) (*domain.Course, error)
 	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, id string, name *string, startDate *string, endDate *string) error
+	Update(ctx context.Context, id string, name *string, startDate, endDate *time.Time) error
 	Count(ctx context.Context, filters Filters) (int, error)
 }
 
@@ -42,19 +42,19 @@ func (repo *repo) Create(ctx context.Context, course *domain.Course) error {
 }
 
 func (repo *repo) GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.Course, error) {
-	var u []domain.Course
+	var c []domain.Course
 
-	tx := repo.db.WithContext(ctx).Model(&u)
+	tx := repo.db.WithContext(ctx).Model(&c)
 	tx = applyFilters(tx, filters)
 	tx = tx.Offset(offset).Limit(limit)
-	result := tx.Order("created_at desc").Find(&u)
+	result := tx.Order("created_at desc").Find(&c)
 
 	if result.Error != nil {
 		repo.log.Println(result.Error)
 		return nil, result.Error
 	}
 
-	return u, nil
+	return c, nil
 }
 
 func (repo *repo) Get(ctx context.Context, id string) (*domain.Course, error) {
@@ -72,8 +72,8 @@ func (repo *repo) Get(ctx context.Context, id string) (*domain.Course, error) {
 
 func (repo *repo) Delete(ctx context.Context, id string) error {
 	course := domain.Course{ID: id}
-
 	result := repo.db.WithContext(ctx).Delete(&course)
+
 	if result.Error != nil {
 		repo.log.Println(result.Error)
 		return result.Error
@@ -88,19 +88,19 @@ func (repo *repo) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (repo *repo) Update(ctx context.Context, id string, name *string, startDate *string, endDate *string) error {
+func (repo *repo) Update(ctx context.Context, id string, name *string, startDate, endDate *time.Time) error {
 	values := make(map[string]interface{})
 
 	if name != nil {
-		values["name"] = name
+		values["name"] = *name
 	}
 
 	if startDate != nil {
-		values["start_date"] = startDate
+		values["start_date"] = *startDate
 	}
 
 	if endDate != nil {
-		values["end_date"] = endDate
+		values["end_date"] = *endDate
 	}
 
 	result := repo.db.WithContext(ctx).Model(&domain.Course{}).Where("id", id).Updates(values)
