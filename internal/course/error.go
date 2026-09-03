@@ -10,6 +10,7 @@ var ErrStartDateRequired = errors.New("Start date is required")
 var ErrInvalidStartDate = errors.New("invalid start date!")
 var ErrEndDateRequired = errors.New("End date is required")
 var ErrInvalidEndDate = errors.New("invalid end date!")
+var ErrEndBeforeStart = errors.New("end date cannot be before start date")
 
 type ErrNotFound struct {
 	courseId string

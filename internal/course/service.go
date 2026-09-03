@@ -51,6 +51,11 @@ func (s service) Create(ctx context.Context, name, startDate, endDate string) (*
 		return nil, err
 	}
 
+	if startDateParsed.After(endDateParsed) {
+		s.log.Println(ErrEndBeforeStart)
+		return nil, ErrEndBeforeStart
+	}
+
 	course := domain.Course{
 		Name:      name,
 		StartDate: startDateParsed,
@@ -84,11 +89,20 @@ func (s service) Get(ctx context.Context, id string) (*domain.Course, error) {
 func (s service) Update(ctx context.Context, id string, name, startDate, endDate *string) error {
 	var startDateParsed, endDateParsed *time.Time
 
+	course, err := s.repo.Get(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	if startDate != nil {
 		date, err := time.Parse("2006-01-02", *startDate)
 		if err != nil {
 			s.log.Println(err)
 			return ErrInvalidStartDate
+		}
+		if date.After(course.EndDate) {
+			s.log.Println(ErrEndBeforeStart)
+			return ErrEndBeforeStart
 		}
 		startDateParsed = &date
 	}
@@ -98,6 +112,10 @@ func (s service) Update(ctx context.Context, id string, name, startDate, endDate
 		if err != nil {
 			s.log.Println(err)
 			return ErrInvalidEndDate
+		}
+		if course.StartDate.After(date) {
+			s.log.Println(ErrEndBeforeStart)
+			return ErrEndBeforeStart
 		}
 		endDateParsed = &date
 	}
